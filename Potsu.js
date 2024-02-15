@@ -81,12 +81,14 @@ class GameObject {
         this.x = this.vertices[0].x;
         this.y = this.vertices[0].y;
         this.tag = tag;
-        this.edges = buildEdges(this.vertices);
 
-        ctx.fillRect(0,0,500,500);
+        this.edges = buildEdges(this.vertices);
+        this.velocity = {x:0,y:0};
+        this.mass = 1;
+        this.lockVelocity = {x:false, y:false};
+        this.LockRotation = false;
 
         objects.push({x:this.x, y:this.y, edges:this.edges,});
-        console.log(objects);
         //collision
         this.projectInAxis = function(x, y) {
             let min = Infinity;
@@ -204,17 +206,23 @@ class GameObject {
             }
         },
 
-        this.CreateRigidboy = function(mass, gravity, LockRotation = {x:false, y:false}, lockVelocity = {x:false, y:false}){
+        this.CreateRigidboy = function(mass, gravity, LockRotation = false, lockVelocity = {x:false, y:false}){
             this.mass = mass;
             this.gravity = gravity;
-            this.velocity = {x:0,y:0};
             this.lockVelocity = lockVelocity;
             this.LockRotation = LockRotation;
 
-            SetLoopSpeed(physicsLoop(this), 1);
+            setInterval(() => this.physicsLoop(), 1);
             
-
+            
         },
+
+        this.physicsLoop  = function(){
+            this.velocity.y += this.gravity/100;
+            console.log(this.velocity);
+            this.offset(this.velocity.x, this.velocity.y);
+        },
+
 
         this.rotate = function(degrees){
             let center = findCenter(this.vertices);
@@ -226,18 +234,21 @@ class GameObject {
         }
         this.rotate(rotation);
     }
+    
 }
+
 
 // gameLoops And stuff
 function SetLoopSpeed(functionName, interval){
     setInterval(functionName, interval);
 }
 
-//collision detection SAT
 function clear(){
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    console.log(c);
+    ctx.clearRect(0,0,c.width, c.height)
 }
+
+
+//collision detection SAT
 
 function buildEdges(vertices) {
     const edges = [];
@@ -267,10 +278,6 @@ function intervalDistance(minA, maxA, minB, maxB) {
 }
 
 //custom
-function physicsLoop(object){
-    object.velocity.y += object.gravity/1000;
-    object.offset(object.velocity.x, object.velocity.y);
-}
 
     function makeHitBox(){
         var a;
