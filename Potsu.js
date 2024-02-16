@@ -220,7 +220,13 @@ class GameObject {
         this.physicsLoop  = function(){
             this.velocity.y += this.gravity/100;
             console.log(this.velocity);
+            if(this.testGroup(objects).includes(true)){
+                while(this.testGroup(objects).includes(true)){
+                    this.offset(0,1);
+                }
+            }else{
             this.offset(this.velocity.x, this.velocity.y);
+            }
         },
 
 
