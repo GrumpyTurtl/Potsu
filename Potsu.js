@@ -71,7 +71,7 @@ function canvas(CanvasId){
 **/
 
 class GameObject {
-    constructor(hitboxVertices, image, width, height, rotation, tag){
+    constructor(hitboxVertices, image, width, height, rotation, collider, tag){
         this.image = image;
         this.width = width;
         this.height = height;
@@ -80,6 +80,7 @@ class GameObject {
         this.vertices = this.vertOrigin;
         this.x = this.vertices[0].x;
         this.y = this.vertices[0].y;
+        this.collider = collider;
         this.tag = tag;
 
         this.edges = buildEdges(this.vertices);
@@ -88,11 +89,18 @@ class GameObject {
         this.lockVelocity = {x:false, y:false};
         this.LockRotation = false;
 
-        objects.push({x:this.x, y:this.y, edges:this.edges,});
+        this.addToArray()
+
+        this.addToArray = function(){
+            if(objects){
+                objects.push(this)
+            }
+        }
+        
         //collision
-        this.projectInAxis = function(x, y) {
-            let min = Infinity;
-            let max = -Infinity;
+        this.projectInAxis = function (x, y) {
+            let min = 10000;
+            let max = -100000;
             for (let i = 0; i < this.vertices.length; i++) {
                 let px = this.vertices[i].x;
                 let py = this.vertices[i].y;
@@ -107,7 +115,9 @@ class GameObject {
             return { min, max };
         };
 
+
         this.testWith = function (otherPolygon) {
+            
             // get all edges
             const edges = [];
             for (let i = 0; i < this.edges.length; i++) {
@@ -131,7 +141,11 @@ class GameObject {
                     return false;
                 }
             }
-            return true;
+            if(otherPolygon.collider){
+                return true;
+            }else{
+                return false;
+            }
         };
 
         this.testGroup = function(array){
@@ -140,11 +154,11 @@ class GameObject {
                 collide.push({Object: array[i], collision: this.testWith(array[i])});
             }
             return collide;
-        }
+        };
 
         this.testWithTag = function(tag){
             
-        }
+        };
 
         //render
         this.renderImage = function() {
@@ -204,9 +218,9 @@ class GameObject {
                     y: this.vertOrigin[i].y + y
                 }
             }
-        },
+        };
 
-        this.CreateRigidboy = function(mass, gravity, LockRotation = false, lockVelocity = {x:false, y:false}){
+        this.CreateRigidboy = function(mass, gravity, LockRotation = false, lockVelocity = {x:false, y:false}, ){
             this.mass = mass;
             this.gravity = gravity;
             this.lockVelocity = lockVelocity;
@@ -215,13 +229,15 @@ class GameObject {
             setInterval(() => this.physicsLoop(), 1);
             
             
-        },
+        };
 
         this.physicsLoop  = function(){
-            this.velocity.y += this.gravity/100;
-            console.log(this.velocity);
+            //this.velocity.y += this.gravity/100;
+            //console.log(objects)
+            //this.testGroup(objects)
+            //if(!this.testGroup(objects).includes(true)){
             this.offset(this.velocity.x, this.velocity.y);
-        },
+        };
 
 
         this.rotate = function(degrees){
@@ -231,8 +247,11 @@ class GameObject {
             for (let i = 0; i < this.vertices.length; i++) {
                 this.vertices[i] = rotateVertex(this.vertices[i], center, radians);
             }
-        }
+        };
         this.rotate(rotation);
+        
+        
+
     }
     
 }
