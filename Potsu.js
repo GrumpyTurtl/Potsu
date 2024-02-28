@@ -89,11 +89,11 @@ class GameObject {
         this.lockVelocity = {x:false, y:false};
         this.LockRotation = false;
 
-        this.addToArray()
+        this.addObjectToArray()
 
-        this.addToArray = function(){
+        this.addObjectToArray = function(){
             if(objects){
-                objects.push(this)
+                objects.push(this);
             }
         }
         
