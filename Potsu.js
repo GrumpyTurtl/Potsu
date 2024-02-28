@@ -55,7 +55,7 @@ pentagon = [
 */
 
 var ctx;
-var objects = [];
+var Allobjects = [];
 var c;
 
 function canvas(CanvasId){
@@ -88,15 +88,18 @@ class GameObject {
         this.mass = 1;
         this.lockVelocity = {x:false, y:false};
         this.LockRotation = false;
-
-        this.addObjectToArray()
+        this.objects = Allobjects;
+        
 
         this.addObjectToArray = function(){
-            if(objects){
-                objects.push(this);
+            if(Allobjects){
+                Allobjects.push(this);
+            }else{
+                console.error("ALLobject or objects variable not found")
             }
         }
         
+        this.addObjectToArray();
         //collision
         this.projectInAxis = function (x, y) {
             let min = 10000;
@@ -117,7 +120,9 @@ class GameObject {
 
 
         this.testWith = function (otherPolygon) {
-            
+            if(this == otherPolygon){
+                return false;
+            }
             // get all edges
             const edges = [];
             for (let i = 0; i < this.edges.length; i++) {
@@ -149,9 +154,9 @@ class GameObject {
         };
 
         this.testGroup = function(array){
-            var collide = [{}];
+            var collide = [];
             for(var i = 0; i < array.length; i++){
-                collide.push({Object: array[i], collision: this.testWith(array[i])});
+                collide.push(this.testWith(array[i]));
             }
             return collide;
         };
@@ -232,11 +237,11 @@ class GameObject {
         };
 
         this.physicsLoop  = function(){
-            //this.velocity.y += this.gravity/100;
-            //console.log(objects)
-            //this.testGroup(objects)
-            //if(!this.testGroup(objects).includes(true)){
-            this.offset(this.velocity.x, this.velocity.y);
+            this.velocity.y += this.gravity/100;
+            if(!this.testGroup(this.objects).includes(true)){
+                this.offset(this.velocity.x, this.velocity.y);
+            }  
+            
         };
 
 
