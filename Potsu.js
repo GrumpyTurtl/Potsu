@@ -237,7 +237,7 @@ class GameObject {
         };
 
         this.physicsLoop  = function(){
-            this.velocity.y += this.gravity/100;
+            this.velocity.y += this.gravity/this.mass;
             if(!this.testGroup(this.objects).includes(true)){
                 this.offset(this.velocity.x, this.velocity.y);
             }  
