@@ -196,12 +196,7 @@ class GameObject {
                 var clones = [];
                 for (let i = 0; i < amount; i++) {
                     // Create a new instance with the same properties as the original object
-                    const clone = new GameObject(
-                        this.image,
-                        this.width,
-                        this.height,
-                        this.tag
-                    );
+                    const clone = this
                     clones.push(clone);
                 }
                 return clones;
@@ -237,10 +232,19 @@ class GameObject {
         };
 
         this.physicsLoop  = function(){
+            console.log(this.velocity.y);
             this.velocity.y += this.gravity/this.mass;
             if(!this.testGroup(this.objects).includes(true)){
+                
                 this.offset(this.velocity.x, this.velocity.y);
-            }  
+                
+            }else{
+                while(this.testGroup(this.objects).includes(true) ){
+                    this.velocity.y = -0.1;
+                    
+                    this.offset(this.velocity.x, this.velocity.y);
+                }
+            }
             
         };
 
