@@ -57,6 +57,11 @@ pentagon = [
 var ctx;
 var Allobjects = [];
 var c;
+var time = 0;
+setInterval(TimeCounter, 1);
+function TimeCounter(){
+    time++;
+}
 
 function canvas(CanvasId){
     c = document.getElementById(CanvasId);
@@ -232,22 +237,29 @@ class GameObject {
         };
 
         this.physicsLoop  = function(){
-            console.log(this.velocity.y);
-            this.velocity.y += this.gravity/this.mass;
-            if(!this.testGroup(this.objects).includes(true)){
-                
-                this.offset(this.velocity.x, this.velocity.y);
-                
-            }else{
-                while(this.testGroup(this.objects).includes(true) ){
-                    this.velocity.y = -0.1;
-                    
-                    this.offset(this.velocity.x, this.velocity.y);
+            this.velocity.y += this.gravity;
+            this.acceleration = {x:this.velocity.y/time, Y: this.velocity.x/time};
+            this.force = { x: this.mass * this.acceleration.x, y: this.mass * this.acceleration.y}
+            for(let i = 0; i < this.objects.length; i++){
+                if(this.testWith(this.objects[i])){
+                    this.velocity.y = this.elasticCollision(this.objects[i])[0].y;
+                    this.velocity.x = this.elasticCollision(this.objects[i])[0].x;
                 }
             }
-            
+            this.offset(this.velocity.x, this.velocity.y)
         };
 
+        this.elasticCollision = function (otherObject){
+            var finalVelocity1 = {x:0,y:0}
+            finalVelocity1.x = (this.mass-otherObject.mass)*this.velocity.x+2*otherObject.mass*otherObject.velocity.x
+            finalVelocity1.y = (this.mass-otherObject.mass)*this.velocity.y+2*otherObject.mass*otherObject.velocity.y
+
+            var finalVelocity2 = {x:0,y:0}
+            finalVelocity2.x = 2*this.mass*this.velocity.x+(otherObject.mass-this.mass)*otherObject.velocity.x;
+            finalVelocity2.y = 2*this.mass*this.velocity.y+(otherObject.mass-this.mass)*otherObject.velocity.y;
+
+            return finalVelocity1, finalVelocity2;
+        }
 
         this.rotate = function(degrees){
             let center = findCenter(this.vertices);
