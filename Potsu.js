@@ -242,6 +242,7 @@ class GameObject {
             this.force = { x: this.mass * this.acceleration.x, y: this.mass * this.acceleration.y}
             for(let i = 0; i < this.objects.length; i++){
                 if(this.testWith(this.objects[i])){
+                    console.log(this.elasticCollision(this.objects[i])[0].x)
                     this.velocity.y = this.elasticCollision(this.objects[i])[0].y;
                     this.velocity.x = this.elasticCollision(this.objects[i])[0].x;
                 }
@@ -258,7 +259,7 @@ class GameObject {
             finalVelocity2.x = 2*this.mass*this.velocity.x+(otherObject.mass-this.mass)*otherObject.velocity.x;
             finalVelocity2.y = 2*this.mass*this.velocity.y+(otherObject.mass-this.mass)*otherObject.velocity.y;
 
-            return finalVelocity1, finalVelocity2;
+            return [finalVelocity1, finalVelocity2];
         }
 
         this.rotate = function(degrees){
