@@ -151,7 +151,7 @@ class GameObject {
                     return false;
                 }
             }
-            if(otherPolygon.collider){
+            if(otherPolygon.collider == "collider"){
                 return true;
             }else{
                 return false;
@@ -233,34 +233,27 @@ class GameObject {
 
             setInterval(() => this.physicsLoop(), 1);
             
-            
         };
 
         this.physicsLoop  = function(){
-            this.velocity.y += this.gravity;
-            this.acceleration = {x:this.velocity.y/time, Y: this.velocity.x/time};
-            this.force = { x: this.mass * this.acceleration.x, y: this.mass * this.acceleration.y}
-            for(let i = 0; i < this.objects.length; i++){
-                if(this.testWith(this.objects[i])){
-                    console.log(this.elasticCollision(this.objects[i])[0].x)
-                    this.velocity.y = this.elasticCollision(this.objects[i])[0].y;
-                    this.velocity.x = this.elasticCollision(this.objects[i])[0].x;
+            
+
+            if(this.collider == "collider"){
+                for (let index = 0; index < this.objects.length; index++) {
+                    if(this.testWith(this.objects[i])){
+                        if(this.objects[i].collider == "collider"){
+                            let v = this.calculateCollisionVelocity(this.objects[i]);
+                            this.velocity.x = v.obj1.x;
+                            this.velocity.y = v.obj1.y;
+
+                        }else if(this.objects[i].collider == "trigger"){
+                            console.log("idk")
+                        }
+                    }
                 }
             }
-            this.offset(this.velocity.x, this.velocity.y)
+            this.offset(this.velocity.x, this.velocity.y);
         };
-
-        this.elasticCollision = function (otherObject){
-            var finalVelocity1 = {x:0,y:0}
-            finalVelocity1.x = (this.mass-otherObject.mass)*this.velocity.x+2*otherObject.mass*otherObject.velocity.x
-            finalVelocity1.y = (this.mass-otherObject.mass)*this.velocity.y+2*otherObject.mass*otherObject.velocity.y
-
-            var finalVelocity2 = {x:0,y:0}
-            finalVelocity2.x = 2*this.mass*this.velocity.x+(otherObject.mass-this.mass)*otherObject.velocity.x;
-            finalVelocity2.y = 2*this.mass*this.velocity.y+(otherObject.mass-this.mass)*otherObject.velocity.y;
-
-            return [finalVelocity1, finalVelocity2];
-        }
 
         this.rotate = function(degrees){
             let center = findCenter(this.vertices);
@@ -272,7 +265,17 @@ class GameObject {
         };
         this.rotate(rotation);
         
-        
+        this.calculateCollisionVelocity = function (obj2){
+            let totalMass = obj2.mass + this.mass
+
+            let v1x = ((this.mass - obj2.mass) * this.velocity.x + 2 * obj2.mass * obj2.velocity.x) / totalMass;
+            let v1y = ((this.mass - obj2.mass) * this.velocity.y + 2 * obj2.mass * obj2.velocity.y) / totalMass;
+            let v2x = ((obj2.mass - this.mass) * obj2.velocity.x + 2 * this.mass * this.velocity.x) / totalMass;
+            let v2y = ((obj2.mass - this.mass) * obj2.velocity.y + 2 * this.mass * this.velocity.y) / totalMass;
+            
+            return {obj1: {x:v1x, y:v1y}, obj2: {x:v2x, y:v2y}}
+        }
+
 
     }
     
