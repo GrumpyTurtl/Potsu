@@ -101,7 +101,7 @@ class GameObject {
 
         this.addObjectToArray = function(){
             if(Allobjects){
-                Allobjects.push(this);
+                Allobjects.push();
             }else{
                 console.error("ALLobject or objects variable not found")
             }
@@ -183,6 +183,7 @@ class GameObject {
         };
 
         this.render = function(fillColour, borderColour) {
+            console.log(this.tag, this.objects);
             if (ctx === null) {
                 console.error("No CanvasRenderingContext2D applied");
             } else {
@@ -274,21 +275,15 @@ class GameObject {
         };
         this.rotate(rotation);
         
-        this.calculateCollisionVelocity = function (obj2){
-            let totalMass = obj2.mass + this.mass
+        this.impulseReaction = function (obj){
+            let vr = {
+             x: this.velocity.x - obj.velocity.x,
+             y: this.velocity.y - obj.velocity.y 
+            };
 
-            let v1x = ((this.mass - obj2.mass) * this.velocity.x + 2 * obj2.mass * obj2.velocity.x) / totalMass;
-            let v1y = ((this.mass - obj2.mass) * this.velocity.y + 2 * obj2.mass * obj2.velocity.y) / totalMass;
-            let v2x = ((obj2.mass - this.mass) * obj2.velocity.x + 2 * this.mass * this.velocity.x) / totalMass;
-            let v2y = ((obj2.mass - this.mass) * obj2.velocity.y + 2 * this.mass * this.velocity.y) / totalMass;
-            
-            return {obj1: {x:v1x, y:v1y}, obj2: {x:v2x, y:v2y}}
-        }
 
-        this.impulseReaction = function (){
 
-            
-            let j = -(1 + this.CoefficentOfRetitution) * ;
+            let j = -(1 + this.CoefficentOfRetitution) * vr.x;
             return j;
         }
     }
