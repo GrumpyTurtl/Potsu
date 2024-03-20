@@ -78,7 +78,7 @@ function canvas(CanvasId){
 **/
 
 class GameObject {
-    constructor(hitboxVertices, image, width, height, rotation, collider, tag){
+    constructor(hitboxVertices, image, width, height, rotation, collider,tag){
         this.image = image;
         this.width = width;
         this.height = height;
@@ -228,11 +228,12 @@ class GameObject {
             }
         };
 
-        this.CreateRigidboy = function(mass, gravity, LockRotation = false, lockVelocity = {x:false, y:false}, ){
+        this.CreateRigidboy = function(mass,CoefficentOfRetitution, gravity, LockRotation = false, lockVelocity = {x:false, y:false}, ){
             this.mass = mass;
             this.gravity = gravity;
             this.lockVelocity = lockVelocity;
             this.LockRotation = LockRotation;
+            this.CoefficentOfRetitution = CoefficentOfRetitution;
 
             setInterval(() => this.physicsLoop(), 1);
             
@@ -284,12 +285,17 @@ class GameObject {
             return {obj1: {x:v1x, y:v1y}, obj2: {x:v2x, y:v2y}}
         }
 
+        this.impulseReaction = function (){
 
+            
+            let j = -(1 + this.CoefficentOfRetitution) * ;
+            return j;
+        }
     }
     
 }
 
-
+//https://research.ncl.ac.uk/game/mastersdegree/gametechnologies/physicstutorials/5collisionresponse/Physics%20-%20Collision%20Response.pdf
 // gameLoops And stuff
 function SetLoopSpeed(functionName, interval){
     setInterval(functionName, interval);
@@ -298,7 +304,6 @@ function SetLoopSpeed(functionName, interval){
 function clear(){
     ctx.clearRect(0,0,c.width, c.height)
 }
-
 
 //collision detection SAT
 
