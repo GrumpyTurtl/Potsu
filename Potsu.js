@@ -62,6 +62,8 @@ setInterval(TimeCounter, 1);
 function TimeCounter(){
     time++;
 }
+var deltaTime = 0;
+var lastTime = 0;
 
 function canvas(CanvasId){
     c = document.getElementById(CanvasId);
@@ -90,6 +92,7 @@ class GameObject {
 
         this.edges = buildEdges(this.vertices);
         this.velocity = {x:0,y:0};
+        this.acceleration = {x:0, y:0};
         this.mass = 1;
         this.lockVelocity = {x:false, y:false};
         this.LockRotation = false;
@@ -236,23 +239,28 @@ class GameObject {
         };
 
         this.physicsLoop  = function(){
-            
+            deltaTime = time - lastTime;
+            lastTime = time;
 
-            if(this.collider == "collider"){
-                for (let index = 0; index < this.objects.length; index++) {
-                    if(this.testWith(this.objects[i])){
-                        if(this.objects[i].collider == "collider"){
-                            let v = this.calculateCollisionVelocity(this.objects[i]);
-                            this.velocity.x = v.obj1.x;
-                            this.velocity.y = v.obj1.y;
+            // if(this.collider == "collider"){
+            //     for (let index = 0; index < this.objects.length; index++) {
+            //         if(this.testWith(this.objects[i])){
+            //             if(this.objects[i].collider == "collider"){
+            //                 let v = this.calculateCollisionVelocity(this.objects[i]);
+            //                 this.velocity.x = v.obj1.x;
+            //                 this.velocity.y = v.obj1.y;
 
-                        }else if(this.objects[i].collider == "trigger"){
-                            console.log("idk")
-                        }
-                    }
-                }
-            }
-            this.offset(this.velocity.x, this.velocity.y);
+            //             }else if(this.objects[i].collider == "trigger"){
+            //                 console.log("idk")
+            //             }
+            //         }
+            //     }
+            // }
+
+            this.velocity.x += this.acceleration.x * deltaTime;
+            this.velocity.y += this.acceleration.y * deltaTime;
+
+            this.offset(this.velocity.x * deltaTime, this.velocity.y * deltaTime);
         };
 
         this.rotate = function(degrees){
