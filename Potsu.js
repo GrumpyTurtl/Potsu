@@ -167,7 +167,7 @@ class GameObject {
                 collide.push(this.testWith(array[i]));
             }
             return collide;
-        };
+        };    
 
         this.testWithTag = function(tag){
             
