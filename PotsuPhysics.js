@@ -1,3 +1,4 @@
+//https://www.toptal.com/game/video-game-physics-part-i-an-introduction-to-rigid-body-dynamics
 class particle {
     constructor(){
         this.position = {x:0, y:0};
