@@ -39,7 +39,7 @@ function ComputeForce(object){
 }
 
 function RunSimulation() {
-    let time = {
+   let time = {
         totalTime: 100,
         time: 0,
         deltaTime: 1
