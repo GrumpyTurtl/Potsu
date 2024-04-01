@@ -158,7 +158,7 @@ function RunRigidBodySimulation(){
                 let anglularAcceleration = rb.torque / rb.shape.momentOfinertia;
                 rb.angularVelocity += anglularAcceleration * time.deltaTime;
                 rb.angle += rb.angularVelocity * time.deltaTime;
-            }a
+            }
 
             PrintRigidBodies();
             time.time += time.deltaTime;
