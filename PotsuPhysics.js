@@ -1,168 +1,189 @@
-//https://www.toptal.com/game/video-game-physics-part-i-an-introduction-to-rigid-body-dynamics
-
 var c = document.getElementById("cvs");
 var ctx = c.getContext("2d");
 
-class particle {
-    constructor(){
-        this.position = {x:0, y:0};
-        this.velocity = {x:0, y:0};
-        this.mass = 10;
+
+var time = {
+    deltaTime: 5,
+    time: 0,
+    totalTime: 1000
+}
+
+var a = {
+    vertices: [{ x: 0, y: 0 },{ x: 50, y: 0 },{ x: 50, y: 50 },{ x: 0, y: 50 }],
+    mass:1,
+    angularVelocity: 0,
+    velocity: {x:0, y:0},
+}
+a.center = findCenter(a.vertices);
+a.edges = buildEdges(a.vertices);
+
+var b = {
+    vertices: [{ x: 0, y: 0 },{ x: 50, y: 0 },{ x: 50, y: 50},{ x: 0, y: 50 }],
+    mass:1,
+    angularVelocity: 0,
+    velocity: {x:0, y:0},
+}
+b.center = findCenter(b.vertices);
+b.edges = buildEdges(b.vertices);
+
+GoTo(b.vertices, 100, 0);
+console.log(b.vertices);
+render(a.vertices, "red");
+render(b.vertices, "blue");
+
+GoTo(b.vertices, 0, 100);
+render(b.vertices, "blue");
+
+function Fixedupdate(){
+    while(time.time < time.totalTime){
+        console.log(testWith(b,a));
+        time.time += time.deltaTime;
     }
 }
 
-var particles = [new particle,new particle,new particle,new particle,new particle];
 
-function PrintParticles(){
-    for (let i = 0; i < particles.length; i++) {
-        console.log("Particle:", i, "Position:", particles[i].position, "Velocity:", particles[i].velocity);
-        ctx.fillStyle = "Purple";
-        ctx.fillRect(particles[i].position.x, particles[i].position.y, 5, 5);
-        ctx.strokeStyle = "Green";
-        ctx.beginPath()
-        ctx.moveTo(particles[i].position.x, particles[i].position.y);
-        ctx.lineTo(particles[i].position.x + particles[i].velocity.x, particles[i].position.y + particles[i].velocity.y);
-        ctx.stroke();
-    }   
-}
+Fixedupdate();
 
-function InitialiseParticles(){
-    for (let i = 0; i < particles.length; i++) {
-        particles[i].position = {x: Math.random() * 10, y: Math.random() * 10}
-        particles[i].velocity = {x:0, y:0};
-        particles[i].mass = 1;
+//movement
+function offset(vertices,dx, dy) {
+    for (let i = 0; i < vertices.length; i++) {
+        vertices[i] = {
+            x: vertices[i].x + dx,
+            y: vertices[i].y + dy,
+        };
     }
 }
 
-function ComputeForce(object){
-    return {x: Math.random() * 10, y: object.mass * 9.81};
-}
-
-function RunSimulation() {
-   let time = {
-        totalTime: 100,
-        time: 0,
-        deltaTime: 1
+function GoTo(vertices,x,y) {
+    let currentPos = vertices;
+    for (let i = 0; i < vertices.length; i++) {
+        console.log(x, currentPos[i].x, y, currentPos[i].y);
+        console.log(x - currentPos[i].x, y - currentPos[i].y);
+        vertices[i] = {
+            x: x + currentPos[i].x,
+            y: y + currentPos[i].y 
+        }
     }
-    InitialiseParticles();
-    PrintParticles();
+};
 
-    while (time.time < time.totalTime){
-            for(let i = 0; i < particles.length; i++){
-                let force = ComputeForce(particles[i]);
-                let acceleration = {x: force.x / particles[i].mass, y: force.y / particles[i].mass};
-                
-                particles[i].velocity.x += acceleration.x * time.deltaTime;
-                particles[i].velocity.y += acceleration.y * time.deltaTime;
 
-                particles[i].position.x += particles[i].velocity.x * time.deltaTime;
-                particles[i].position.y += particles[i].velocity.y * time.deltaTime;
-            }
+//math
+function calculateVelocityOfPoint(velocity, angularVelocity, distanceVectorFromCenterToPoint){
+    let omegaR = {x: (-angularVelocity * distanceVectorFromCenterToPoint.x), y: (angularVelocity * distanceVectorFromCenterToPoint.y), z: 0};
+    return {x: velocity.x + omegaR.x, y: velocity.y + omegaR.y};
+}
 
-            PrintParticles();
-            time.time += time.deltaTime;
-                    
+function CrossProduct(a,b){
+    return {x:a.y*b.z - a.z * b.y, y:a.z*b.x - a.x * b.z, z:a.x * b.y - ay * b.x};
+}
+
+function DotProduct(a,b){
+    return {x: a.x * b.x, y: a.y * b.y}
+}
+
+function Normal(a){
+    return {x:a.y, y: -a.x};
+}
+
+
+//collision
+function findCenter(vertices){
+    const n = vertices.length;
+    let sumX = 0;
+    let sumY = 0;
+
+    for(const vertex of vertices){
+        sumX += vertex.x;
+        sumY += vertex.y;
     }
 
+    return { x: sumX/n, y: sumY/n};
 }
 
-RunSimulation();
 
-class RigidBody {
-    constructor(){
-        this.position = {x:null, y:null};
-        this.linearVelocity = {x:null, y:null};
-        this.angle;
-        this.angularVelocity;
-        this.force = {x:null, y:null};
-        this.torque;
-        this.shape = new BoxShape;
+function buildEdges(vertices) {
+    const edges = [];
+    if (vertices.length < 3) {
+        console.error("Only polygons supported.");
+        return edges;
     }
-}
-
-class BoxShape {
-    constructor(){
-        this.width;
-        this.height;
-        this.mass;
-        this.momentOfinertia;
+    for (let i = 0; i < vertices.length; i++) {
+        const a = vertices[i];
+        let b = vertices[0];
+        if (i + 1 < vertices.length) {
+            b = vertices[i + 1];
+        }
+        edges.push({
+            x: (b.x - a.x),
+            y: (b.y - a.y),
+        });
     }
+    return edges;
 }
 
-function CalculateBoxInertia(objectShape){
-    let m = objectShape.mass;
-    let w = objectShape.width;
-    let h = objectShape.height;
-    objectShape.momentOfinertia = m * (w * w + h * h) / 12;
-}
-
-var rigidbodies = [new RigidBody, new RigidBody, new RigidBody, new RigidBody, new RigidBody, new RigidBody];
-
-function PrintRigidBodies(){
-    ctx.fillStyle = "Black"
-    for(let i = 0; i < rigidbodies.length; i++){
-        console.log("RigidBody:",i,"Position:", rigidbodies[i].position, "Angle:", rigidbodies[i].angle);
-        ctx.fillRect(rigidbodies[i].position.x, rigidbodies[i].position.y, rigidbodies[i].shape.width, rigidbodies[i].shape.height);
-        ctx.strokeStyle = "Green";
-        ctx.beginPath()
-        ctx.moveTo(rigidbodies[i].position.x, rigidbodies[i].position.y);
-        ctx.lineTo(rigidbodies[i].position.x + rigidbodies[i].linearVelocity.x, rigidbodies[i].position.y + rigidbodies[i].linearVelocity.y);
-        ctx.stroke();
+function intervalDistance(minA, maxA, minB, maxB) {
+    if (minA < minB) {
+        return (minB - maxA);
     }
+    return (minA - maxB);
 }
 
-function InitialiseRigidBodies(){
-    for(let i = 0; i < rigidbodies.length; i++){
-        let rb = rigidbodies[i];
-        rb.position = {x: Math.random() * 50, y: Math.random() * 50};
-        rb.angle = (Math.random() * 360) / 360 * Math.PI * 2;
-        rb.linearVelocity = {x:Math.random() * 20, y:0};
-        rb.angularVelocity = 0;
-
-        rb.shape.mass = 10;
-        rb.shape.width = 1 + Math.random() * 20;
-        rb.shape.height = 1 + Math.random() * 20;
-        CalculateBoxInertia(rb.shape);
+function projectInAxis(polygon, x, y) {
+    let min = 10000;
+    let max = -100000;
+    for (let i = 0; i < polygon.vertices.length; i++) {
+        let px = polygon.vertices[i].x;
+        let py = polygon.vertices[i].y;
+        var projection = (px * x + py * y) / (Math.sqrt(x * x + y * y));
+        if (projection > max) {
+            max = projection;
+        }
+        if (projection < min) {
+            min = projection;
+        }
     }
-}
+    return { min, max };
+};
 
-function ComputeForceAndTorque(rb){
-    let f = {x:0, y: 9.81};
-    rb.force = f;
-    let r = {x:rb.shape.width/2, y: rb.shape.height/2}
-    rb.torque = r.x * f.y - r.y * f.x;
-}
-
-function RunRigidBodySimulation(){
-    let time = {
-        totalTime: 10,
-        time: 0,
-        deltaTime: 1
-    };
-    
-    InitialiseRigidBodies();
-    PrintRigidBodies();
-
-    while (time.time < time.totalTime) {
-            for(let i = 0; i < rigidbodies.length; i++){
-                let rb = rigidbodies[i];
-                ComputeForceAndTorque(rb);
-
-                let linearAcceleration = {x: rb.force.x/rb.shape.mass, y: rb.force.y/rb.shape.mass};
-                rb.linearVelocity.x += linearAcceleration.x * time.deltaTime;
-                rb.linearVelocity.y += linearAcceleration.y * time.deltaTime;
-
-                rb.position.x += rb.linearVelocity.x * time.deltaTime;
-                rb.position.y += rb.linearVelocity.y * time.deltaTime;
-
-                let anglularAcceleration = rb.torque / rb.shape.momentOfinertia;
-                rb.angularVelocity += anglularAcceleration * time.deltaTime;
-                rb.angle += rb.angularVelocity * time.deltaTime;
-            }
-
-            PrintRigidBodies();
-            time.time += time.deltaTime;
+function testWith (polygon, otherPolygon) {
+    // get all edges
+    const edges = [];
+    for (let i = 0; i < polygon.edges.length; i++) {
+        edges.push(polygon.edges[i]);
     }
-}
+    for (let i = 0; i < otherPolygon.edges.length; i++) {
+        edges.push(otherPolygon.edges[i]);
+    }
+    // build all axis and project
+    for (let i = 0; i < edges.length; i++) {
+        // get axis
+        const length = Math.sqrt(edges[i].y * edges[i].y + edges[i].x * edges[i].x);
+        const axis = {
+            x: -edges[i].y / length,
+            y: edges[i].x / length,
+        };
+        // project polygon under axis
+        const { min: minA, max: maxA } = projectInAxis(polygon, axis.x, axis.y);
+        const { min: minB, max: maxB } = projectInAxis(otherPolygon, axis.x, axis.y);
+        if (intervalDistance(minA, maxA, minB, maxB) > 0) {
+            return false;
+        }
+    }
 
-RunRigidBodySimulation();
+    return true;
+};
+
+//rendering
+function render(vertices, fillColour, borderColour) {
+        ctx.fillStyle = borderColour;
+        ctx.lineWidth = 10;
+        ctx.beginPath();
+
+        for (var i = 0; i < vertices.length; i++) {
+            ctx.lineTo(vertices[i].x, vertices[i].y);
+        }
+
+        ctx.fillStyle = fillColour;
+        ctx.fill();
+        ctx.closePath();
+}

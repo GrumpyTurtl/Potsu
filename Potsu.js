@@ -229,42 +229,6 @@ class GameObject {
             }
         };
 
-        this.CreateRigidboy = function(mass,CoefficentOfRetitution, gravity, LockRotation = false, lockVelocity = {x:false, y:false}, ){
-            this.mass = mass;
-            this.gravity = gravity;
-            this.lockVelocity = lockVelocity;
-            this.LockRotation = LockRotation;
-            this.CoefficentOfRetitution = CoefficentOfRetitution;
-
-            setInterval(() => this.physicsLoop(), 1);
-            
-        };
-
-        this.physicsLoop  = function(){
-            deltaTime = time - lastTime;
-            lastTime = time;
-
-            // if(this.collider == "collider"){
-            //     for (let index = 0; index < this.objects.length; index++) {
-            //         if(this.testWith(this.objects[i])){
-            //             if(this.objects[i].collider == "collider"){
-            //                 let v = this.calculateCollisionVelocity(this.objects[i]);
-            //                 this.velocity.x = v.obj1.x;
-            //                 this.velocity.y = v.obj1.y;
-
-            //             }else if(this.objects[i].collider == "trigger"){
-            //                 console.log("idk")
-            //             }
-            //         }
-            //     }
-            // }
-
-            this.velocity.x += this.acceleration.x * deltaTime;
-            this.velocity.y += this.acceleration.y * deltaTime;
-
-            this.offset(this.velocity.x * deltaTime, this.velocity.y * deltaTime);
-        };
-
         this.rotate = function(degrees){
             let center = findCenter(this.vertices);
             let radians = degrees * Math.PI/180;
@@ -274,18 +238,6 @@ class GameObject {
             }
         };
         this.rotate(rotation);
-        
-        this.impulseReaction = function (obj){
-            let vr = {
-             x: this.velocity.x - obj.velocity.x,
-             y: this.velocity.y - obj.velocity.y 
-            };
-
-
-
-            let j = -(1 + this.CoefficentOfRetitution) * vr.x;
-            return j;
-        }
     }
     
 }
