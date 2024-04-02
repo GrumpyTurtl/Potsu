@@ -10,61 +10,45 @@ var time = {
 
 var a = {
     vertices: [{ x: 0, y: 0 },{ x: 50, y: 0 },{ x: 50, y: 50 },{ x: 0, y: 50 }],
+    position: {x:0,y:0},
     mass:1,
     angularVelocity: 0,
     velocity: {x:0, y:0},
 }
-a.center = findCenter(a.vertices);
-a.edges = buildEdges(a.vertices);
+a.center = findCenter(a);
+a.edges = buildEdges(a);
 
 var b = {
     vertices: [{ x: 0, y: 0 },{ x: 50, y: 0 },{ x: 50, y: 50},{ x: 0, y: 50 }],
+    position: {x:0,y:0},
     mass:1,
     angularVelocity: 0,
     velocity: {x:0, y:0},
 }
-b.center = findCenter(b.vertices);
-b.edges = buildEdges(b.vertices);
+b.center = findCenter(b);
+b.edges = buildEdges(b);
 
-GoTo(b.vertices, 100, 0);
-console.log(b.vertices);
-render(a.vertices, "red");
-render(b.vertices, "blue");
+b.position = {x:100, y:0};
+render(a, "red");
+render(b, "blue");
 
-GoTo(b.vertices, 0, 100);
-render(b.vertices, "blue");
+b.position = {x:200, y:0}
+render(b, "blue");
+
+b.position.y += 50;
+render(b, "blue");
 
 function Fixedupdate(){
     while(time.time < time.totalTime){
-        console.log(testWith(b,a));
+        if(testWith(a,b)){
+            
+        }
         time.time += time.deltaTime;
     }
 }
 
 
 Fixedupdate();
-
-//movement
-function offset(vertices,dx, dy) {
-    for (let i = 0; i < vertices.length; i++) {
-        vertices[i] = {
-            x: vertices[i].x + dx,
-            y: vertices[i].y + dy,
-        };
-    }
-}
-
-function GoTo(vertices,x,y) {
-    let currentPos = vertices;
-    for (let i = 0; i < vertices.length; i++) {
-        console.log(x, currentPos[i].x, y, currentPos[i].y);
-        console.log(x - currentPos[i].x, y - currentPos[i].y);
-        vertices[i] = {
-            x: x + currentPos[i].x,
-            y: y + currentPos[i].y 
-        }
-    }
-};
 
 
 //math
@@ -87,35 +71,35 @@ function Normal(a){
 
 
 //collision
-function findCenter(vertices){
-    const n = vertices.length;
+function findCenter(obj){
+    const n = obj.vertices.length;
     let sumX = 0;
     let sumY = 0;
 
-    for(const vertex of vertices){
-        sumX += vertex.x;
-        sumY += vertex.y;
+    for(const vertex of obj.vertices){
+        sumX += vertex.x + obj.position.x;
+        sumY += vertex.y + obj.position.y;
     }
 
     return { x: sumX/n, y: sumY/n};
 }
 
 
-function buildEdges(vertices) {
+function buildEdges(obj) {
     const edges = [];
-    if (vertices.length < 3) {
+    if (obj.vertices.length < 3) {
         console.error("Only polygons supported.");
         return edges;
     }
-    for (let i = 0; i < vertices.length; i++) {
-        const a = vertices[i];
-        let b = vertices[0];
-        if (i + 1 < vertices.length) {
-            b = vertices[i + 1];
+    for (let i = 0; i < obj.vertices.length; i++) {
+        const a = obj.vertices[i];
+        let b = obj.vertices[0];
+        if (i + 1 < obj.vertices.length) {
+            b = obj.vertices[i + 1];
         }
         edges.push({
-            x: (b.x - a.x),
-            y: (b.y - a.y),
+            x: (b.x + obj.position.x - a.x + obj.position.x),
+            y: (b.y + obj.position.y - a.y + obj.position.y)
         });
     }
     return edges;
@@ -132,8 +116,8 @@ function projectInAxis(polygon, x, y) {
     let min = 10000;
     let max = -100000;
     for (let i = 0; i < polygon.vertices.length; i++) {
-        let px = polygon.vertices[i].x;
-        let py = polygon.vertices[i].y;
+        let px = polygon.vertices[i].x + polygon.position.x;
+        let py = polygon.vertices[i].y + polygon.position.y;
         var projection = (px * x + py * y) / (Math.sqrt(x * x + y * y));
         if (projection > max) {
             max = projection;
@@ -174,13 +158,13 @@ function testWith (polygon, otherPolygon) {
 };
 
 //rendering
-function render(vertices, fillColour, borderColour) {
+function render(obj, fillColour, borderColour) {
         ctx.fillStyle = borderColour;
         ctx.lineWidth = 10;
         ctx.beginPath();
 
-        for (var i = 0; i < vertices.length; i++) {
-            ctx.lineTo(vertices[i].x, vertices[i].y);
+        for (var i = 0; i < obj.vertices.length; i++) {
+            ctx.lineTo(obj.vertices[i].x + obj.position.x, obj.vertices[i].y + obj.position.y);
         }
 
         ctx.fillStyle = fillColour;
