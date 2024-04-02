@@ -74,6 +74,14 @@ function Normal(a){
 
 
 //collision
+function ImpulseParameter(elasticity,vap,Normal, massA, massB, distanceToImpactA, distanceToImpactB, InertiaA, InertiaB){
+    let tmp1 = -(1 + elasticity) * vap * Normal;
+    let tmp2 =  1/massA + 1/massB + (distanceToImpactA * Normal)**2 / InertiaA + (distanceToImpactB * Normal)**2 / InertiaB
+
+    let j = tmp1/tmp2;
+    return j;
+}
+
 function findCenter(obj){
     const n = obj.vertices.length;
     let sumX = 0;
