@@ -1,3 +1,6 @@
+//https://stackoverflow.com/questions/36784456/calculating-angular-velocity-after-a-collision
+//https://www.myphysicslab.com/engine2D/collision-en.html
+
 var c = document.getElementById("cvs");
 var ctx = c.getContext("2d");
 
