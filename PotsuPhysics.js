@@ -52,6 +52,8 @@ function Fixedupdate(){
     if(testWith(a,b)){
         render(a, "green");
         render(b, "blue");
+        let stinky = calNormal({x:a.position.x, y: a.position.y});
+        console.log(ImpulseParameter(0.8,calculateVelocityOfPoint(a.velocity,0,{x:0,y:25},stinky,a.mass,b.mass,{x:0,y:25},{x:0,y:25},0,0)))
     }else{
         render(a, "red");
         render(b, "blue");
@@ -77,17 +79,18 @@ function DotProduct(a,b){
     return {x: a.x * b.x, y: a.y * b.y}
 }
 
-function Normal(a){
+function calNormal(a){
     return {x:a.y, y: -a.x};
 }
 
 
 //collision
-function ImpulseParameter(elasticity,vap,Normal, massA, massB, distanceToImpactA, distanceToImpactB, InertiaA, InertiaB){
-    let tmp1 = -(1 + elasticity) * vap * Normal;
-    let tmp2 =  1/massA + 1/massB + (distanceToImpactA * Normal)**2 / InertiaA + (distanceToImpactB * Normal)**2 / InertiaB
-
+function ImpulseParameter(elasticity,vp,normal, massA, massB, distanceToImpactA, distanceToImpactB, InertiaA, InertiaB){
+    let tmp1 = -(1 + elasticity) * (vp.x * normal.x) + (vp.y * normal.y);
+    let tmp2 =  1/massA + 1/massB + ((distanceToImpactA.x * normal.x) + (distanceToImpactA.y * normal.y))**2 / InertiaA + ((distanceToImpactB.x * normal.x) + (distanceToImpactB.y * normal.y))**2 / InertiaB
+    console.log(((distanceToImpactA.x * normal.x) + (distanceToImpactA.y * normal.y))**2 / InertiaA)
     let j = tmp1/tmp2;
+    console.log(tmp2);
     return j;
 }
 
