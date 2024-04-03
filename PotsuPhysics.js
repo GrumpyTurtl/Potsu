@@ -6,7 +6,7 @@ var ctx = c.getContext("2d");
 
 
 var time = {
-    deltaTime: 5,
+    deltaTime: 0.5,
     time: 0,
     totalTime: 1000
 }
@@ -14,6 +14,8 @@ var time = {
 var a = {
     vertices: [{ x: 0, y: 0 },{ x: 50, y: 0 },{ x: 50, y: 50 },{ x: 0, y: 50 }],
     position: {x:0,y:0},
+    acceleration: {x:0,y:0},
+    force: {x:0, y:0.0981},
     mass:1,
     angularVelocity: 0,
     velocity: {x:0, y:0},
@@ -31,27 +33,34 @@ var b = {
 b.center = findCenter(b);
 b.edges = buildEdges(b);
 
-b.position = {x:100, y:0};
-render(a, "red");
-render(b, "blue");
-
-b.position = {x:200, y:0}
-render(b, "blue");
-
-b.position.y += 50;
-render(b, "blue");
+b.position = {x:0, y:100};
 
 function Fixedupdate(){
-    while(time.time < time.totalTime){
-        if(testWith(a,b)){
-            
-        }
-        time.time += time.deltaTime;
+    if(time.time > time.totalTime){
+        return;
     }
+
+    a.acceleration = {x:a.force.x/a.mass, y: a.force.y/a.mass};
+
+    a.velocity.x += a.acceleration.x * time.deltaTime;
+    a.velocity.y += a.acceleration.y * time.deltaTime;
+
+    a.position.x += a.velocity.x * time.deltaTime;
+    a.position.y += a.velocity.y * time.deltaTime;
+
+    ctx.clearRect(0,0,4000,40000);
+    if(testWith(a,b)){
+        render(a, "green");
+        render(b, "blue");
+    }else{
+        render(a, "red");
+        render(b, "blue");
+    }
+
+    time.time += time.deltaTime;
 }
 
-
-Fixedupdate();
+setInterval(Fixedupdate, time.deltaTime);
 
 
 //math
