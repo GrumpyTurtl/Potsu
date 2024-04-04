@@ -1,4 +1,6 @@
 //https://stackoverflow.com/questions/36784456/calculating-angular-velocity-after-a-collision
+
+
 //https://www.myphysicslab.com/engine2D/collision-en.html
 
 var c = document.getElementById("cvs");
@@ -6,7 +8,7 @@ var ctx = c.getContext("2d");
 
 
 var time = {
-    deltaTime: 0.5,
+    deltaTime: 0.2,
     time: 0,
     totalTime: 1000
 }
@@ -33,12 +35,36 @@ var b = {
 b.center = findCenter(b);
 b.edges = buildEdges(b);
 
-b.position = {x:0, y:100};
+b.position = {x:0, y:150};
 
 function Fixedupdate(){
     if(time.time > time.totalTime){
         return;
     }
+
+    ctx.clearRect(0,0,4000,40000);
+    if(testWith(a,b)){
+        render(a, "green");
+        render(b, "blue");
+        let stinky = calNormal({x:a.position.x, y: a.position.y});
+        let reaction = ImpulseParameter(0.8,calculateVelocityOfPoint(a.velocity,0,{x:0,y:25}),stinky,a.mass,b.mass,{x:0,y:25},{x:0,y:25},100,100);
+
+
+
+        a.velocity.x += reaction.x;
+        a.velocity.y += reaction.y;
+
+        b.velocity.x += -reaction.x;
+        b.velocity.y += -reaction.y;
+
+        console.log("COLLISION _______________________________________________-");
+        console.log(reaction);
+    }else{
+        render(a, "red");
+        render(b, "blue");
+    }
+
+    console.log(a.velocity, b.velocity);
 
     a.acceleration = {x:a.force.x/a.mass, y: a.force.y/a.mass};
 
@@ -47,17 +73,6 @@ function Fixedupdate(){
 
     a.position.x += a.velocity.x * time.deltaTime;
     a.position.y += a.velocity.y * time.deltaTime;
-
-    ctx.clearRect(0,0,4000,40000);
-    if(testWith(a,b)){
-        render(a, "green");
-        render(b, "blue");
-        let stinky = calNormal({x:a.position.x, y: a.position.y});
-        console.log(ImpulseParameter(0.8,calculateVelocityOfPoint(a.velocity,0,{x:0,y:25},stinky,a.mass,b.mass,{x:0,y:25},{x:0,y:25},0,0)))
-    }else{
-        render(a, "red");
-        render(b, "blue");
-    }
 
     time.time += time.deltaTime;
 }
@@ -85,12 +100,13 @@ function calNormal(a){
 
 
 //collision
-function ImpulseParameter(elasticity,vp,normal, massA, massB, distanceToImpactA, distanceToImpactB, InertiaA, InertiaB){
-    let tmp1 = -(1 + elasticity) * (vp.x * normal.x) + (vp.y * normal.y);
-    let tmp2 =  1/massA + 1/massB + ((distanceToImpactA.x * normal.x) + (distanceToImpactA.y * normal.y))**2 / InertiaA + ((distanceToImpactB.x * normal.x) + (distanceToImpactB.y * normal.y))**2 / InertiaB
-    console.log(((distanceToImpactA.x * normal.x) + (distanceToImpactA.y * normal.y))**2 / InertiaA)
-    let j = tmp1/tmp2;
-    console.log(tmp2);
+function ImpulseParameter(elasticity,vp, normal, massA, massB, distanceToImpactA, distanceToImpactB, InertiaA, InertiaB){
+    let tmp1 = {x:-(1 + elasticity) * (vp.x * normal.x), y:-(1 + elasticity) * (vp.y * normal.y)};
+    let tmp2 = {
+        x:1/massA + 1/massB + (distanceToImpactA.x * normal.x)**2 / InertiaA + (distanceToImpactB.x * normal.x)**2 / InertiaB,
+        y:1/massA + 1/massB + (distanceToImpactA.y * normal.y)**2 / InertiaA + (distanceToImpactB.y * normal.y)**2 / InertiaB
+    }
+    let j = {x:tmp1.x/tmp2.x, y: tmp1.y/tmp2.y};
     return j;
 }
 
