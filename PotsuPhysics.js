@@ -8,7 +8,7 @@ var ctx = c.getContext("2d");
 
 
 var time = {
-    deltaTime: 0.2,
+    deltaTime: 1,
     time: 0,
     totalTime: 1000
 }
@@ -35,7 +35,7 @@ var b = {
 b.center = findCenter(b);
 b.edges = buildEdges(b);
 
-b.position = {x:0, y:150};
+b.position = {x:45, y:150};
 
 function Fixedupdate(){
     if(time.time > time.totalTime){
@@ -44,28 +44,26 @@ function Fixedupdate(){
 
     ctx.clearRect(0,0,4000,40000);
     if(testWith(a,b)){
+        console.log("COLLISION _______________________________________________");
         render(a, "green");
         render(b, "blue");
-        let stinky = calNormal({x:a.position.x, y: a.position.y});
-        let reaction = ImpulseParameter(0.8,calculateVelocityOfPoint(a.velocity,0,{x:0,y:25}),stinky,a.mass,b.mass,{x:0,y:25},{x:0,y:25},100,100);
+        let stinky = buildEdges(a);
+        let vp = calculateVelocityOfPoint(a.velocity,0,{x:0,y:25});
+        let reaction = ImpulseParameter(0.8,vp,stinky[4],a.mass,b.mass,{x:0,y:25},{x:0,y:25},100,100);
 
 
 
-        a.velocity.x += reaction.x;
-        a.velocity.y += reaction.y;
+        a.velocity.x += -reaction.x;
+        a.velocity.y += -reaction.y;
 
-        b.velocity.x += -reaction.x;
-        b.velocity.y += -reaction.y;
+        b.velocity.x += reaction.x;
+        b.velocity.y += reaction.y;
 
-        console.log("COLLISION _______________________________________________-");
-        console.log(reaction);
+
     }else{
         render(a, "red");
         render(b, "blue");
     }
-
-    console.log(a.velocity, b.velocity);
-
     a.acceleration = {x:a.force.x/a.mass, y: a.force.y/a.mass};
 
     a.velocity.x += a.acceleration.x * time.deltaTime;
@@ -95,7 +93,8 @@ function DotProduct(a,b){
 }
 
 function calNormal(a){
-    return {x:a.y, y: -a.x};
+    for()
+    return 
 }
 
 
