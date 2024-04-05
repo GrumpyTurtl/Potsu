@@ -67,7 +67,7 @@ function Fixedupdate(){
     }else{
         render(a, "red");
         render(b, "blue");
-    }
+    } 
     a.acceleration = {x:a.force.x/a.mass, y: a.force.y/a.mass};
 
     a.velocity.x += a.acceleration.x * time.deltaTime;
