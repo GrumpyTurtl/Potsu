@@ -17,12 +17,13 @@ var a = {
     vertices: [{ x: 0, y: 0 },{ x: 50, y: 0 },{ x: 50, y: 50 },{ x: 0, y: 50 }],
     position: {x:0,y:0},
     acceleration: {x:0,y:0},
-    force: {x:0, y:0.0981},
+    force: {x:0, y:0.981},
     mass:1,
     angularVelocity: 0,
     velocity: {x:0, y:0},
+    intertia:100,
 }
-a.center = findCenter(a);
+a.centerOfMass = findCenter(a);
 a.edges = buildEdges(a);
 
 var b = {
@@ -31,8 +32,9 @@ var b = {
     mass:1,
     angularVelocity: 0,
     velocity: {x:0, y:0},
+    intertia:100,
 }
-b.center = findCenter(b);
+b.centerOfMass = findCenter(b);
 b.edges = buildEdges(b);
 
 b.position = {x:45, y:150};
@@ -47,9 +49,11 @@ function Fixedupdate(){
         console.log("COLLISION _______________________________________________");
         render(a, "green");
         render(b, "blue");
-        let stinky = buildEdges(a);
-        let vp = calculateVelocityOfPoint(a.velocity,0,{x:0,y:25});
-        let reaction = ImpulseParameter(0.8,vp,stinky[4],a.mass,b.mass,{x:0,y:25},{x:0,y:25},100,100);
+
+        let normal = calculateNormal2D(a.vertices);
+        let PointVelocity = calculateVelocityOfPoint(a.velocity,a.angularVelocity,{x:0,y:25});
+
+        let reaction = ImpulseParameter(0.8,PointVelocity,normal,a.mass,b.mass,{x:0,y:25},{x:0,y:25},a.intertia,b.intertia);
 
 
 
@@ -92,10 +96,32 @@ function DotProduct(a,b){
     return {x: a.x * b.x, y: a.y * b.y}
 }
 
-function calNormal(a){
-    for()
-    return 
+function calculateNormal2D(vertices, magnitude = 1) {
+    if (vertices.length < 3) {
+        console.error("At least three vertices are required to calculate a normal vector.");
+        return null;
+    }
+
+    const vector = {
+        x: vertices[1].x - vertices[0].x,
+        y: vertices[1].y - vertices[0].y
+    };
+
+    const normal = {
+        x: -vector.y,
+        y: vector.x
+    };
+
+    const length = Math.sqrt(normal.x * normal.x + normal.y * normal.y);
+    normal.x /= length;
+    normal.y /= length;
+
+    normal.x *= magnitude;
+    normal.y *= magnitude;
+
+    return normal;
 }
+
 
 
 //collision
