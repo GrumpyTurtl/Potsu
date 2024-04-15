@@ -3,6 +3,8 @@
 
 //https://www.myphysicslab.com/engine2D/collision-en.html
 
+//https://eugkenny.github.io/GADV8001/lectures/
+
 var c = document.getElementById("cvs");
 var ctx = c.getContext("2d");
 
