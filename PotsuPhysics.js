@@ -1,5 +1,5 @@
 //https://stackoverflow.com/questions/36784456/calculating-angular-velocity-after-a-collision
-
+//http://www.chrishecker.com/Rigid_Body_Dynamics
 
 //https://www.myphysicslab.com/engine2D/collision-en.html
 
