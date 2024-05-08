@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hitboxes</title>
+</head>
+<body>
+    <canvas id="cvs" width="900" height="900" style="border: 5px solid black;"></canvas>
+    <input type="button" onclick="putOut()" value="output">
+    <span>scale:<input id="scaleBox" type="number" value="1"></span>
+    <input type="button" onclick="Delete()" value="delete">
+    <p id="output"></p>
+    <script>
+        var c = document.getElementById('cvs');
+        var ctx = c.getContext('2d');
+
+        var scale = document.getElementById("scaleBox");
+        var output = document.getElementById("output");
+        var verts = [];
+
+        function getMousePosition(canvas, event) {
+            let rect = canvas.getBoundingClientRect();
+            let x = event.clientX - rect.left;
+            let y = event.clientY - rect.top;
+            console.log("Coordinate x: " + x,
+                "Coordinate y: " + y);
+            verts.push({x:x,y:y});
+        }
+
+        function Delete(){
+            verts.pop();
+        }
+
+        c.addEventListener("mousedown", function (e) {
+            getMousePosition(c, e);
+        }); 
+
+        function Loop(){
+            ctx.clearRect(0,0,c.width,c.height);
+            ctx.fillStyle = "grey"
+            ctx.fillRect(0,0,c.width,c.height);
+
+            ctx.strokeStyle = "#222b25";
+            ctx.lineWidth = 10;
+            ctx.beginPath();
+        
+            for (var i = 0; i < verts.length; i++) {
+                ctx.lineTo(verts[i].x, verts[i].y);
+            }
+            if(verts[0]){
+            ctx.lineTo(verts[0].x, verts[0].y);
+            }
+
+            ctx.fillStyle = "rgba(31, 194, 74,0.5)";
+            ctx.stroke();
+            ctx.fill();
+            ctx.closePath();
+
+            ctx.fillStyle = "black";
+            for (var i = 0; i < verts.length; i++) {
+                ctx.fillRect(verts[i].x - 5, verts[i].y - 5, 10,10);
+            }
+            
+            window.requestAnimationFrame(Loop);
+        }
+        window.requestAnimationFrame(Loop);
+
+        function putOut(){
+            let string = "";
+            for(const obj of verts){
+                string += '{x:' + obj.x * scale.value + ',y:' + obj.y * scale.value + "},"
+            }
+            output.innerText = string;
+        }
+    </script>
+</body>
+</html>
